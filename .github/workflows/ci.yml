@@ -6,16 +6,21 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-      - name: Create conda environment for Python
+      - name: Create conda environments for Python
         run: |
           set -xe
+          ${CONDA}/bin/conda create -y -p ${HOME}/usr python=2
           ${CONDA}/bin/conda create -y -n test python=3.8
           ${CONDA}/bin/conda info
           ${CONDA}/bin/conda info --envs
+          echo ${HOME}/usr/bin >> ${GITHUB_PATH}
       - name: Build
         run: |
           set -xe
           ${CONDA}/bin/activate test
-          export CBFLIB_DONT_USE_PY2CIFRW=yes
+          echo ${PATH}
+          which python
+          which python2
+          which python3
           make -f Makefile_DIALS distclean
           make -f Makefile_DIALS tests
