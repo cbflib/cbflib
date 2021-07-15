@@ -1,0 +1,12 @@
+on: [push, pull_request]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          make distclean
+          make tests
