@@ -16,5 +16,6 @@ jobs:
         run: |
           set -xe
           ${CONDA}/bin/activate test
+          export CBFLIB_DONT_USE_PY2CIFRW=yes
           make distclean
           make tests
