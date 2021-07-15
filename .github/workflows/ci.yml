@@ -6,7 +6,15 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
+      - name: Create conda environment for Python
+        run: |
+          set -xe
+          ${CONDA}/bin/conda create -y -n test python=3.8
+          ${CONDA}/bin/conda info
+          ${CONDA}/bin/conda info --envs
       - name: Build
         run: |
+          set -xe
+          ${CONDA}/bin/activate test
           make distclean
           make tests
