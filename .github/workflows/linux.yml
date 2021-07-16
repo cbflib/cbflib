@@ -4,7 +4,7 @@ jobs:
   linux:
     strategy:
       matrix:
-        container: ["centos:7", "centos:8"]
+        container: ["centos:7", "centos:8", "debian:9", "debian:10"]
         pyver: [3.6, 3.7, 3.8, 3.9]
       fail-fast: false
     runs-on: ubuntu-latest
@@ -12,12 +12,18 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-      - name: Install dependencies
+      - name: Install dependencies for CentOS
         run: |
           set -xe
           yum groupinstall -y 'Development Tools'
           yum install -y gcc-gfortran rsync wget which zlib-devel
         if: ${{ startsWith(matrix.container, 'centos') }}
+      - name: Install dependencies for Debian
+        run: |
+          set -xe
+          apt-get update
+          apt-get -y install build-essential gfortran m4 rsync wget zlib1g-dev
+        if: ${{ startsWith(matrix.container, 'debian') }}
       - name: Install conda
         run: |
           wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
@@ -27,10 +33,12 @@ jobs:
           ${HOME}/miniforge/bin/conda create -p ${HOME}/py2 python=2
           ${HOME}/miniforge/bin/conda create -n py3 python=${{ matrix.pyver }}
           echo ${HOME}/py2/bin >> ${GITHUB_PATH}
+          ${HOME}/miniforge/bin/conda info
+          ${HOME}/miniforge/bin/conda info --envs
       - name: Build
         run: |
           set -xe
-          source ${HOME}/miniforge/bin/activate py3
+          . ${HOME}/miniforge/bin/activate py3
           echo ${PATH}
           which python
           which python2
@@ -41,5 +49,5 @@ jobs:
       - name: Test
         run: |
           set -xe
-          source ${HOME}/miniforge/bin/activate py3
+          . ${HOME}/miniforge/bin/activate py3
           make -f Makefile_DIALS tests
