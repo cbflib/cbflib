@@ -17,17 +17,17 @@ jobs:
         run: |
           set -xe
           ${CONDA}/bin/conda create -y -p ${HOME}/py2 -c conda-forge python=2
-          ${CONDA}/bin/conda create -y -p ${HOME}/py3 -c conda-forge python=${{ matrix.pyver }}
+          ${CONDA}/bin/conda create -y -n py3 -c conda-forge python=${{ matrix.pyver }}
           ${CONDA}/bin/conda info
           ${CONDA}/bin/conda info --envs
-          echo ${HOME}/usr/py2 >> ${GITHUB_PATH}
-          echo ${HOME}/usr/py3 >> ${GITHUB_PATH}
+          echo "${HOME}/py2" >> ${GITHUB_PATH}
       - name: Add gfortran for macOS
-        run: ${CONDA}/bin/conda install -y -p ${HOME}/py3 -c conda-forge gfortran=9
+        run: ${CONDA}/bin/conda install -y -n py3 -c conda-forge gfortran=9
         if: ${{ startsWith(matrix.os, 'macOS') }}
       - name: Build
         run: |
           set -xe
+          source ${CONDA}/bin/activate py3
           echo ${PATH}
           which python
           which python2
@@ -38,4 +38,5 @@ jobs:
       - name: Test
         run: |
           set -xe
+          source ${CONDA}/bin/activate py3
           make -f Makefile_DIALS tests
