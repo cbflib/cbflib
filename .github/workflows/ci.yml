@@ -16,14 +16,14 @@ jobs:
       - name: Create conda environments for Python
         run: |
           set -xe
-          ${CONDA}/bin/conda create -y -p ${HOME}/py2 python=2
-          ${CONDA}/bin/conda create -y -p ${HOME}/py3 python=${{ matrix.pyver }}
+          ${CONDA}/bin/conda create -y -p ${HOME}/py2 -c conda-forge python=2
+          ${CONDA}/bin/conda create -y -p ${HOME}/py3 -c conda-forge python=${{ matrix.pyver }}
           ${CONDA}/bin/conda info
           ${CONDA}/bin/conda info --envs
           echo ${HOME}/usr/py2 >> ${GITHUB_PATH}
           echo ${HOME}/usr/py3 >> ${GITHUB_PATH}
       - name: Add gfortran for macOS
-        run: ${CONDA}/bin/conda install -y -p ${HOME}/py3 gfortran=9
+        run: ${CONDA}/bin/conda install -y -p ${HOME}/py3 -c conda-forge gfortran=9
         if: ${{ startsWith(matrix.os, 'macOS') }}
       - name: Build
         run: |
