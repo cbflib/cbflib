@@ -23,4 +23,10 @@ jobs:
           which python2
           which python3
           make -f Makefile_DIALS distclean
+          make -f Makefile_DIALS all
+          make -f Makefile_DIALS shared
+      - name: Test
+        run: |
+          set -xe
+          ${CONDA}/bin/activate test
           make -f Makefile_DIALS tests
