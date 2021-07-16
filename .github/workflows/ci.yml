@@ -1,16 +1,23 @@
 on: [push, pull_request]
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
+  CI:
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, macOS-10.14, macOS-10.15]
+        pyver: [3.6, 3.7, 3.8, 3.9]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
+      - name: Change permissions to conda
+        run: sudo chown -R ${USER} ${CONDA}
       - name: Create conda environments for Python
         run: |
           set -xe
           ${CONDA}/bin/conda create -y -p ${HOME}/usr python=2
-          ${CONDA}/bin/conda create -y -n test python=3.8
+          ${CONDA}/bin/conda create -y -n test python=${{ matrix.pyver }}
           ${CONDA}/bin/conda info
           ${CONDA}/bin/conda info --envs
           echo ${HOME}/usr/bin >> ${GITHUB_PATH}
