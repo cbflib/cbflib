@@ -1,0 +1,45 @@
+on: [push, pull_request]
+
+jobs:
+  linux:
+    strategy:
+      matrix:
+        container: ["centos:7", "centos:8"]
+        pyver: [3.6, 3.7, 3.8, 3.9]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          set -xe
+          yum groupinstall -y 'Development Tools'
+          yum install -y gcc-gfortran rsync wget which zlib-devel
+        if: ${{ startsWith(matrix.container, 'centos') }}
+      - name: Install conda
+        run: |
+          wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
+          bash ./Miniforge3-Linux-x86_64.sh -b -u -p ${HOME}/miniforge
+      - name: Create Python conda environments
+        run: |
+          ${HOME}/miniforge/bin/conda create -p ${HOME}/py2 python=2
+          ${HOME}/miniforge/bin/conda create -n py3 python=${{ matrix.pyver }}
+          echo ${HOME}/py2/bin >> ${GITHUB_PATH}
+      - name: Build
+        run: |
+          set -xe
+          source ${HOME}/miniforge/bin/activate py3
+          echo ${PATH}
+          which python
+          which python2
+          which python3
+          make -f Makefile_DIALS distclean
+          make -f Makefile_DIALS all
+          make -f Makefile_DIALS shared
+      - name: Test
+        run: |
+          set -xe
+          source ${HOME}/miniforge/bin/activate py3
+          make -f Makefile_DIALS tests
